@@ -1,4 +1,4 @@
-# An Empirical Study on Large-Scale Multi-Label Text Classification including Few and Zero-Shot Labels
+# An Empirical Study on Large-Scale Multi-Label Text Classification Including Few and Zero-Shot Labels
 
 This is the code used for the experiments described in the following paper:
 
