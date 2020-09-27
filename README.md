@@ -115,7 +115,7 @@ nano ltmc_configuration.json
 ```
 
 
-**Supported models:** LWAN-BIGRU, ZERO-LWAN-BIGRU, GRAPH-ZERO-LWAN-BIGRU, BERT
+**Supported models:** LWAN-BIGRU, ZERO-LWAN-BIGRU, GRAPH-ZERO-LWAN-BIGRU, BERT-BASE, ROBERTA-BASE
 
 **Supported token encodings:** word2vec, elmo, bert 
 
