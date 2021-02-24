@@ -1,0 +1,26 @@
+{
+  "task": {
+    "dataset": "EURLEX57K"
+  },
+  "model": {
+    "architecture": "BIGRU-LWAN",
+    "token_encoder": "grus",
+    "label_encoder": null,
+    "n_hidden_layers": 1,
+    "hidden_units_size": 100,
+    "dropout_rate": 0.4,
+    "word_dropout_rate": 0.00,
+    "lr": 0.001,
+    "batch_size": 4,
+    "epochs": 1,
+    "token_encoding": "word2vec",
+    "embeddings": "law2vec.200d.txt",
+    "bert": null
+  },
+  "sampling": {
+    "max_sequence_size": 100,
+    "max_label_size": 15,
+    "few_threshold": 50,
+    "evaluation@k": 10
+  }
+}
