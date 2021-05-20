@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from data import VECTORS_DIR
-from transformers import BertTokenizer, RobertaTokenizer, AutoTokenizer
+from transformers import AutoTokenizer
 
 
 class Tokenizer(object):
@@ -19,18 +19,14 @@ class BERTTokenizer(Tokenizer):
 
     def __init__(self, bert_version):
         super().__init__()
-        if 'roberta' in bert_version:
-            self.tokenizer = RobertaTokenizer.from_pretrained(bert_version)
-        elif 'scibert' in bert_version:
-            self.tokenizer = AutoTokenizer.from_pretrained(bert_version)
-        else:
-            self.tokenizer = BertTokenizer.from_pretrained(bert_version)
+        self.tokenizer = AutoTokenizer.from_pretrained(bert_version)
 
     def tokenize(self, sequences: List[List[str]], max_sequence_size=100, **kwargs):
 
-        word_inputs = np.zeros((len(sequences), max_sequence_size,), dtype=np.int32)
-        for i, seq in enumerate(sequences):
-            word_inputs[i] = self.tokenizer.encode(seq, max_length=max_sequence_size, pad_to_max_length=max_sequence_size)
+        word_inputs = np.asarray(self.tokenizer.batch_encode_plus([' '.join(seq) for seq in sequences],
+                                                                  max_length=max_sequence_size,
+                                                                  padding='max_length',
+                                                                  truncation=True)['input_ids'])
 
         return word_inputs
 

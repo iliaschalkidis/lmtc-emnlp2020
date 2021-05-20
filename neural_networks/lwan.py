@@ -57,8 +57,9 @@ class LWAN:
     def TokenEncoder(self, inputs, encoder, dropout_rate, word_dropout_rate, hidden_layers, hidden_units_size):
 
         # Apply variational drop-out
-        inner_inputs = SpatialDropout1D(dropout_rate)(inputs)
-        inner_inputs = TimestepDropout(word_dropout_rate)(inner_inputs)
+        if encoder != 'bert':
+            inner_inputs = SpatialDropout1D(dropout_rate)(inputs)
+            inner_inputs = TimestepDropout(word_dropout_rate)(inner_inputs)
 
         if encoder == 'grus':
             # Bi-GRUs over token embeddings
@@ -80,10 +81,7 @@ class LWAN:
             convs = SpatialDropout1D(dropout_rate)(convs)
             outputs = Camouflage(mask_value=0)(inputs=[convs, inputs])
         elif encoder == 'bert':
-            if self.bert_version != 'scibert':
-                self.bert_model = TFBertModel.from_pretrained(self.bert_version, from_pt=True)
-            else:
-                self.bert_model = TFAutoModel.from_pretrained(self.bert_version)
+            self.bert_model = TFAutoModel.from_pretrained(self.bert_version, from_pt=True)
             inner_inputs = self.bert_model(inputs)[0]
             inner_inputs = SpatialDropout1D(dropout_rate)(inner_inputs)
             outputs = Camouflage(mask_value=0)(inputs=[inner_inputs, inputs])
@@ -119,7 +117,9 @@ class LWAN:
             self.pretrained_embeddings = self.PretrainedEmbedding()
             w2v_embeddings = self.pretrained_embeddings(inputs_2)
             embeddings = concatenate([w2v_embeddings, elmo_embeddings])
-
+        elif self.token_encoder == 'bert':
+            inputs = Input(shape=(None,), name='word_inputs', dtype='int32')
+            embeddings = inputs
         else:
             inputs = Input(shape=(None,), name='inputs')
             self.pretrained_embeddings = self.PretrainedEmbedding()
@@ -142,7 +142,7 @@ class LWAN:
         # Document Encoding
         if self.token_encoder == 'bert':
             inputs = Input(shape=(None,), name='word_inputs', dtype='int32')
-            embeddings = [inputs]
+            embeddings = inputs
         else:
             inputs = Input(shape=(None,), name='inputs')
             self.pretrained_embeddings = self.PretrainedEmbedding()

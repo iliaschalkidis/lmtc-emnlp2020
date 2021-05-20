@@ -37,7 +37,7 @@ class LMTC:
             self.vectorizer = ELMoTokenizer()
             self.vectorizer2 = W2VTokenizer(w2v_model=Configuration['model']['embeddings'])
         elif 'bert' in Configuration['model']['token_encoding']:
-            self.vectorizer = BERTTokenizer(Configuration['model']['bert'])
+            self.vectorizer = BERTTokenizer(bert_version=Configuration['model']['bert'])
         else:
             self.vectorizer = W2VTokenizer(w2v_model=Configuration['model']['embeddings'])
         self.load_label_descriptions()
@@ -107,9 +107,14 @@ class LMTC:
             label_terms.append([token for token in word_tokenize(data[label]['label']) if re.search('[A-Za-z]', token)])
             self.label_terms_text.append(data[label]['label'])
 
-        self.label_terms_ids = self.vectorizer.tokenize(label_terms,
-                                                        max_sequence_size=Configuration['sampling'][
-                                                            'max_label_size'], features=['word'])
+        if 'bert' not in Configuration['model']['token_encoder']:
+            self.label_terms_ids = self.vectorizer.tokenize(label_terms,
+                                                            max_sequence_size=Configuration['sampling'][
+                                                                'max_label_size'], features=['word'])
+        else:
+            self.label_terms_ids = self.vectorizer.tokenize(label_terms,
+                                                            max_sequence_size=Configuration['sampling']['max_label_size'])
+
         LOGGER.info('#Labels:         {}'.format(len(label_terms)))
         LOGGER.info('Frequent labels: {}'.format(len(frequent)))
         LOGGER.info('Few labels:      {}'.format(len(few)))
@@ -133,7 +138,7 @@ class LMTC:
         loader = JSONLoader()
 
         documents = []
-        for filename in tqdm.tqdm(sorted(filenames)[:10]):
+        for filename in tqdm.tqdm(sorted(filenames)):
             documents.append(loader.read_file(filename))
 
         return documents
@@ -225,12 +230,11 @@ class LMTC:
         start_time = time.time()
         fit_history = model.fit_generator(train_generator,
                                           validation_data=val_generator,
-                                          workers=os.cpu_count(),
                                           epochs=Configuration['model']['epochs'],
                                           callbacks=[early_stopping, model_checkpoint])
 
-        model.save(os.path.join(MODELS_DIR, '{}_{}.h5'.format(Configuration['task']['dataset'].upper(),
-                                                              Configuration['model']['architecture'].upper())))
+        # model.save(os.path.join(MODELS_DIR, '{}_{}.h5'.format(Configuration['task']['dataset'].upper(),
+        #                                                       Configuration['model']['architecture'].upper())))
 
         best_epoch = np.argmin(fit_history.history['val_loss']) + 1
         n_epochs = len(fit_history.history['val_loss'])
