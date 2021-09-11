@@ -31,7 +31,7 @@ class LWAN:
 
     def build_compile(self, n_hidden_layers, hidden_units_size, dropout_rate, word_dropout_rate):
 
-        if 'zero' in Configuration['model']['architecture']:
+        if 'zero' in Configuration['model']['architecture'].lower():
             return self._compile_label_wise_attention_zero(n_hidden_layers=n_hidden_layers,
                                                            hidden_units_size=hidden_units_size,
                                                            dropout_rate=dropout_rate,
