@@ -121,8 +121,15 @@ class LMTC:
         LOGGER.info('Zero labels:     {}'.format(len(true_zero)))
 
         # Compute label hierarchy depth and build labels' graph
-        if 'graph' in Configuration['model']['architecture']:
+        if 'graph' in Configuration['model']['architecture'].lower():
             self.labels_graph = np.zeros((len(self.label_ids), len(self.label_ids)), dtype=np.float32)
+            # Populate label graph
+            for label_id in self.label_ids.keys():
+                if label_id in data:
+                    parents = data[label_id]['parents'] if data[label_id]['parents'] is not None else []
+                for parent_id in parents:
+                    if parent_id in self.label_ids:
+                        self.labels_graph[self.label_ids[label_id]][self.label_ids[parent_id]] = 1.0
         else:
             self.labels_graph = None
 
