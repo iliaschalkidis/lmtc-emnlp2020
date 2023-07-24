@@ -17,7 +17,7 @@ class JSONLoader:
         sections.append(data['header'])
         sections.append(data['recitals'])
         sections.extend(data['main_body'])
-        sections.extend(data['attachments'])
+        sections.append(data['attachments'])
 
         text = '\n'.join(sections)
         for concept in data['concepts']:
